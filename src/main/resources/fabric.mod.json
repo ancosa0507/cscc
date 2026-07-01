@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "id": "clientsidecolorcodes",
+  "version": "${version}",
+  "name": "ClientSideColorCodes",
+  "description": "",
+  "authors": [],
+  "contact": {},
+  "license": "All-Rights-Reserved",
+  "icon": "assets/clientsidecolorcodes/icon.png",
+  "environment": "client",
+  "entrypoints": {
+    "client": [
+      "org.client.clientsidecolorcodesClient"
+    ],
+    "main": [
+      "org.clientsidecolorcodes"
+    ]
+  },
+  "mixins": [
+    "clientsidecolorcodes.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=${loader_version}",
+    "fabric-api": "*",
+    "minecraft": "${minecraft_version}"
+  }
+}

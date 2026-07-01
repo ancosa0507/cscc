@@ -1,0 +1,22 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "org.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [
+  ],
+  "client": [
+    "client.AbstractSignBlockEntityRendererMixin",
+    "client.AbstractSignEditScreenMixin",
+    "client.ChatHudMixin",
+    "client.EntityRendererMixin",
+    "client.InGameHudMixin",
+    "client.TextFieldWidgetMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "overwrites": {
+    "requireAnnotations": true
+  }
+}
