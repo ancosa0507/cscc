@@ -2,7 +2,7 @@ package org.client;
 
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.item.v1.ItemTooltipCallback;
-import net.minecraft.text.Text;
+import net.minecraft.network.chat.Component;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -18,17 +18,17 @@ public class clientsidecolorcodesClient implements ClientModInitializer {
                 if (rawName.contains("&")) {
                     Matcher matcher = COLOR_CODE_PATTERN.matcher(rawName);
                     if (matcher.find()) {
-                        rawName = Text.literal(matcher.replaceAll("§$1")).getString();
+                        rawName = Component.literal(matcher.replaceAll("§$1")).getString();
                     }
-                    lines.set(0, Text.literal(rawName));
+                    lines.set(0, Component.literal(rawName));
                 }
             });
         }
-    public static Text convertColorCodes(Text original) {
+    public static Component convertColorCodes(Component original) {
         String raw = original.getString();
         Matcher matcher = COLOR_CODE_PATTERN.matcher(raw);
         if (matcher.find()) {
-            return Text.literal(matcher.replaceAll("§$1"));
+            return Component.literal(matcher.replaceAll("§$1"));
         }
         return original;
     }

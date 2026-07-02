@@ -1,23 +1,23 @@
 package org.mixin.client;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
-import net.minecraft.client.gui.hud.InGameHud;
-import net.minecraft.text.Text;
+import net.minecraft.client.gui.Gui;
+import net.minecraft.network.chat.Component;
 import org.client.clientsidecolorcodesClient;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
-@Mixin(InGameHud.class)
+@Mixin(Gui.class)
 public class InGameHudMixin {
 
     @ModifyExpressionValue(
-            method = "renderHeldItemTooltip",
+            method = "renderSelectedItemName",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/item/ItemStack;getName()Lnet/minecraft/text/Text;"
+                    target = "Lnet/minecraft/world/item/ItemStack;getHoverName()Lnet/minecraft/network/chat/Component;"
             )
     )
-    private Text convertColorCodes(Text original) {
+    private Component convertColorCodes(Component original) {
         return clientsidecolorcodesClient.convertColorCodes(original);
     }
 }
