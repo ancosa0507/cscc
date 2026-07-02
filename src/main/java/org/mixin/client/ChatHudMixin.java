@@ -18,13 +18,13 @@ import static org.client.clientsidecolorcodesClient.COLOR_CODE_PATTERN;
 public class ChatHudMixin {
 
     @ModifyVariable(
-            method = "addMessage(Lnet/minecraft/network/chat/Component;Lnet/minecraft/network/chat/MessageSignature;Lnet/minecraft/client/GuiMessageTag;)V",
+            method = "addMessage",
             at = @At("HEAD"),
-            argsOnly = true
-    )
-    private Component convertColorCodesInChatHud(Component text) {
-        if (text == null || !text.getString().contains("&")) return text;
-        return processText(text);
+            argsOnly = true,
+            name = "contents")
+    private Component convertColorCodesInChatHud(Component contents) {
+        if (contents == null || !contents.getString().contains("&")) return contents;
+        return processText(contents);
     }
 
     @Unique

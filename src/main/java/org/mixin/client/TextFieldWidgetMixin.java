@@ -19,15 +19,15 @@ public class TextFieldWidgetMixin {
             at = @At("HEAD"),
             cancellable = true
     )
-    private void onFormatText(String string, int firstCharacterIndex, CallbackInfoReturnable<FormattedCharSequence> cir) {
-        if (string == null) return;
+    private void onFormatText(String text, int offset, CallbackInfoReturnable<FormattedCharSequence> cir) {
+        if (text == null) return;
 
         String fullText = ((EditBox) (Object) this).getValue();
-        if (!fullText.contains("&") && !string.contains("&")) return;
+        if (!fullText.contains("&") && !text.contains("&")) return;
 
         Style currentStyle = Style.EMPTY;
         int i = 0;
-        while (i < firstCharacterIndex && i < fullText.length()) {
+        while (i < offset && i < fullText.length()) {
             char c = fullText.charAt(i);
             if (c == '&' && i + 1 < fullText.length()) {
                 char code = fullText.charAt(i + 1);
@@ -49,10 +49,10 @@ public class TextFieldWidgetMixin {
 
         MutableComponent combinedText = Component.literal("");
         i = 0;
-        while (i < string.length()) {
-            char c = string.charAt(i);
-            if (c == '&' && i + 1 < string.length()) {
-                char code = string.charAt(i + 1);
+        while (i < text.length()) {
+            char c = text.charAt(i);
+            if (c == '&' && i + 1 < text.length()) {
+                char code = text.charAt(i + 1);
                 if (Character.isUpperCase(code)) {
                     combinedText.append(Component.literal(String.valueOf(c)).withStyle(currentStyle));
                     i++;

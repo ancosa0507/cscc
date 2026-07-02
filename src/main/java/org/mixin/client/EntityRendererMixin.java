@@ -16,7 +16,7 @@ public abstract class EntityRendererMixin<T extends Entity, S extends EntityRend
             method = "extractRenderState",
             at = @At("TAIL")
     )
-    private void overrideSneakState(T entity, S state, float f, CallbackInfo ci) {
+    private void overrideSneakState(T entity, S state, float partialTicks, CallbackInfo ci) {
         if (state.nameTag != null && state.nameTag.getString().contains("&")) {
             state.nameTag = clientsidecolorcodesClient.convertColorCodes(state.nameTag);
         }

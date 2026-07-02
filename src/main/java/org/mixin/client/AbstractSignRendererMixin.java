@@ -12,33 +12,33 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 @Mixin(AbstractSignRenderer.class)
 public class AbstractSignRendererMixin {
     @ModifyVariable(
-            method = "submitSignText",
+            method = "submitSignWithText",
             at = @At("HEAD"),
-            argsOnly = true
-    )
-    private SignRenderState convertColorCodesOnSignRender(SignRenderState value) {
-        if (value == null) return null;
-        if (value.frontText != null) {
-            Component[] frontMessages = value.frontText.getMessages(false);
+            argsOnly = true,
+            name = "state")
+    private SignRenderState convertColorCodesOnSignRender(SignRenderState state) {
+        if (state == null) return null;
+        if (state.frontText != null) {
+            Component[] frontMessages = state.frontText.getMessages(false);
             for (int i = 0; i < frontMessages.length; i++) {
                 Component original = frontMessages[i];
                 Component converted = convertColorCodes(original);
                 if (converted != original) {
-                    value.frontText = value.frontText.setMessage(i, converted);
+                    state.frontText = state.frontText.setMessage(i, converted);
                 }
             }
         }
-        if (value.backText != null) {
-            Component[] backMessages = value.backText.getMessages(false);
+        if (state.backText != null) {
+            Component[] backMessages = state.backText.getMessages(false);
             for (int i = 0; i < backMessages.length; i++) {
                 Component original = backMessages[i];
                 Component converted = convertColorCodes(original);
                 if (converted != original) {
-                    value.backText = value.backText.setMessage(i, converted);
+                    state.backText = state.backText.setMessage(i, converted);
                 }
             }
         }
-        return value;
+        return state;
     }
 
     @Unique
