@@ -33,15 +33,14 @@ public class AbstractSignEditScreenMixin {
             method = "renderSignText",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/client/gui/DrawContext;drawText(Lnet/minecraft/client/font/TextRenderer;Ljava/lang/String;IIIZ)V"
+                    target = "Lnet/minecraft/client/gui/DrawContext;drawText(Lnet/minecraft/client/font/TextRenderer;Ljava/lang/String;IIIZ)I"
             )
     )
-    private void redirectDrawText(DrawContext context, TextRenderer textRenderer, String text, int x, int y, int color, boolean shadow) {
+    private int redirectDrawText(DrawContext context, TextRenderer textRenderer, String text, int x, int y, int color, boolean shadow) {
         if (text != null && text.contains("&")) {
-            context.drawText(textRenderer, colorizeCodeString(text), x, y, color, shadow);
-            return;
+            return context.drawText(textRenderer, colorizeCodeString(text), x, y, color, shadow);
         }
-        context.drawText(textRenderer, text, x, y, color, shadow);
+        return context.drawText(textRenderer, text, x, y, color, shadow);
     }
 
     @Unique

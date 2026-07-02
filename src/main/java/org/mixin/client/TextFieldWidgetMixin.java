@@ -7,22 +7,39 @@ import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import org.spongepowered.asm.mixin.injection.Redirect;
+
+import java.util.function.BiFunction;
 
 @Mixin(TextFieldWidget.class)
 public class TextFieldWidgetMixin {
 
-    @Inject(
-            method = "format(Ljava/lang/String;I)Lnet/minecraft/text/OrderedText;",
-            at = @At("HEAD"),
-            cancellable = true
+    @Redirect(
+            method = "renderWidget",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Ljava/util/function/BiFunction;apply(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;"
+            )
     )
-    private void onFormatText(String string, int firstCharacterIndex, CallbackInfoReturnable<OrderedText> cir) {
-        if (string == null) return;
-        String fullText = ((TextFieldWidget)(Object)this).getText();
-        if (!fullText.contains("&") && !string.contains("&")) return;
+    private Object redirectRenderTextProvider(BiFunction<String, Integer, OrderedText> instance, Object stringObj, Object indexObj) {
+        String string = (String) stringObj;
+        int firstCharacterIndex = (Integer) indexObj;
+        OrderedText customResult = processFormatting(string, firstCharacterIndex);
+        if (customResult != null) {
+            return customResult;
+        }
+        return instance.apply(string, firstCharacterIndex);
+    }
+
+    @Unique
+    private OrderedText processFormatting(String string, int firstCharacterIndex) {
+        if (string == null) return null;
+
+        String fullText = ((TextFieldWidget) (Object) this).getText();
+        if (!fullText.contains("&") && !string.contains("&")) return null;
+
         Style currentStyle = Style.EMPTY;
         int i = 0;
         while (i < firstCharacterIndex && i < fullText.length()) {
@@ -44,6 +61,7 @@ public class TextFieldWidgetMixin {
             }
             i++;
         }
+
         MutableText combinedText = Text.empty();
         i = 0;
         while (i < string.length()) {
@@ -70,6 +88,7 @@ public class TextFieldWidgetMixin {
             combinedText.append(Text.literal(String.valueOf(c)).setStyle(currentStyle));
             i++;
         }
-        cir.setReturnValue(combinedText.asOrderedText());
+
+        return combinedText.asOrderedText();
     }
 }
