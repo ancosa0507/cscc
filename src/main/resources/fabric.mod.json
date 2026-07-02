@@ -7,7 +7,7 @@
   "authors": [],
   "contact": {},
   "license": "All-Rights-Reserved",
-  "icon": "assets/clientsidecolorcodes/icon.png",
+  "icon": "assets/clientsidecolorcodes/icon.jpg",
   "environment": "client",
   "entrypoints": {
     "client": [
