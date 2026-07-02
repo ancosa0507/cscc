@@ -1,49 +1,34 @@
 package org.mixin.client;
 
 import net.minecraft.client.renderer.blockentity.AbstractSignRenderer;
-import net.minecraft.client.renderer.blockentity.state.SignRenderState;
 import net.minecraft.network.chat.Component;
+import net.minecraft.util.FormattedCharSequence;
+import net.minecraft.world.level.block.entity.SignText;
 import org.client.clientsidecolorcodesClient;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.ModifyVariable;
+import org.spongepowered.asm.mixin.injection.Redirect;
+
+import java.util.function.Function;
 
 @Mixin(AbstractSignRenderer.class)
 public class AbstractSignRendererMixin {
-    @ModifyVariable(
-            method = "submitSignWithText",
-            at = @At("HEAD"),
-            argsOnly = true,
-            name = "state")
-    private SignRenderState convertColorCodesOnSignRender(SignRenderState state) {
-        if (state == null) return null;
-        if (state.frontText != null) {
-            Component[] frontMessages = state.frontText.getMessages(false);
-            for (int i = 0; i < frontMessages.length; i++) {
-                Component original = frontMessages[i];
-                Component converted = convertColorCodes(original);
-                if (converted != original) {
-                    state.frontText = state.frontText.setMessage(i, converted);
-                }
-            }
-        }
-        if (state.backText != null) {
-            Component[] backMessages = state.backText.getMessages(false);
-            for (int i = 0; i < backMessages.length; i++) {
-                Component original = backMessages[i];
-                Component converted = convertColorCodes(original);
-                if (converted != original) {
-                    state.backText = state.backText.setMessage(i, converted);
-                }
-            }
-        }
-        return state;
-    }
 
-    @Unique
-    private Component convertColorCodes(Component original) {
-        if (original == null) return null;
-        return clientsidecolorcodesClient.convertColorCodes(original);
+    @Redirect(
+            method = "submitSignText",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/world/level/block/entity/SignText;getRenderMessages(ZLjava/util/function/Function;)[Lnet/minecraft/util/FormattedCharSequence;"
+            )
+    )
+    private FormattedCharSequence[] redirectGetRenderMessages(SignText signText, boolean shouldFilter, Function<Component, FormattedCharSequence> prepare) {
+        Function<Component, FormattedCharSequence> colorAwareSplitter = (inputComponent) -> {
+            if (inputComponent != null && inputComponent.getString().contains("&")) {
+                Component colored = clientsidecolorcodesClient.convertColorCodes(inputComponent);
+                return prepare.apply(colored);
+            }
+            return prepare.apply(inputComponent);
+        };
+        return signText.getRenderMessages(shouldFilter, colorAwareSplitter);
     }
 }

@@ -7,6 +7,7 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
 import net.minecraft.util.FormattedCharSequence;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
@@ -34,7 +35,7 @@ public class TextFieldWidgetMixin {
                 if (!Character.isUpperCase(code)) {
                     ChatFormatting formatting = ChatFormatting.getByCode(code);
                     if (formatting != null) {
-                        if (formatting.isColor() || formatting == ChatFormatting.RESET) {
+                        if (isColor(formatting) || formatting == ChatFormatting.RESET) {
                             currentStyle = Style.EMPTY.applyFormat(formatting);
                         } else {
                             currentStyle = currentStyle.applyFormat(formatting);
@@ -60,7 +61,7 @@ public class TextFieldWidgetMixin {
                 }
                 ChatFormatting formatting = ChatFormatting.getByCode(code);
                 if (formatting != null) {
-                    if (formatting.isColor() || formatting == ChatFormatting.RESET) {
+                    if (isColor(formatting) || formatting == ChatFormatting.RESET) {
                         currentStyle = Style.EMPTY.applyFormat(formatting);
                     } else {
                         currentStyle = currentStyle.applyFormat(formatting);
@@ -75,5 +76,14 @@ public class TextFieldWidgetMixin {
         }
 
         cir.setReturnValue(combinedText.getVisualOrderText());
+    }
+    @Unique
+    private static boolean isColor(ChatFormatting formatting) {
+        if (formatting == ChatFormatting.RESET) return false;
+        return formatting != ChatFormatting.BOLD
+                && formatting != ChatFormatting.ITALIC
+                && formatting != ChatFormatting.UNDERLINE
+                && formatting != ChatFormatting.STRIKETHROUGH
+                && formatting != ChatFormatting.OBFUSCATED;
     }
 }
