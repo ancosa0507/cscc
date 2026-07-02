@@ -1,28 +1,30 @@
 package org.mixin.client;
 
-import net.minecraft.client.gui.widget.TextFieldWidget;
-import net.minecraft.text.MutableText;
-import net.minecraft.text.OrderedText;
-import net.minecraft.text.Style;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.Style;
+import net.minecraft.util.FormattedCharSequence;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-@Mixin(TextFieldWidget.class)
+@Mixin(EditBox.class)
 public class TextFieldWidgetMixin {
 
     @Inject(
-            method = "format(Ljava/lang/String;I)Lnet/minecraft/text/OrderedText;",
+            method = "applyFormat",
             at = @At("HEAD"),
             cancellable = true
     )
-    private void onFormatText(String string, int firstCharacterIndex, CallbackInfoReturnable<OrderedText> cir) {
+    private void onFormatText(String string, int firstCharacterIndex, CallbackInfoReturnable<FormattedCharSequence> cir) {
         if (string == null) return;
-        String fullText = ((TextFieldWidget)(Object)this).getText();
+
+        String fullText = ((EditBox) (Object) this).getValue();
         if (!fullText.contains("&") && !string.contains("&")) return;
+
         Style currentStyle = Style.EMPTY;
         int i = 0;
         while (i < firstCharacterIndex && i < fullText.length()) {
@@ -30,12 +32,12 @@ public class TextFieldWidgetMixin {
             if (c == '&' && i + 1 < fullText.length()) {
                 char code = fullText.charAt(i + 1);
                 if (!Character.isUpperCase(code)) {
-                    Formatting formatting = Formatting.byCode(code);
+                    ChatFormatting formatting = ChatFormatting.getByCode(code);
                     if (formatting != null) {
-                        if (formatting.isColor() || formatting == Formatting.RESET) {
-                            currentStyle = Style.EMPTY.withFormatting(formatting);
+                        if (formatting.isColor() || formatting == ChatFormatting.RESET) {
+                            currentStyle = Style.EMPTY.applyFormat(formatting);
                         } else {
-                            currentStyle = currentStyle.withFormatting(formatting);
+                            currentStyle = currentStyle.applyFormat(formatting);
                         }
                         i += 2;
                         continue;
@@ -44,32 +46,34 @@ public class TextFieldWidgetMixin {
             }
             i++;
         }
-        MutableText combinedText = Text.empty();
+
+        MutableComponent combinedText = Component.literal("");
         i = 0;
         while (i < string.length()) {
             char c = string.charAt(i);
             if (c == '&' && i + 1 < string.length()) {
                 char code = string.charAt(i + 1);
                 if (Character.isUpperCase(code)) {
-                    combinedText.append(Text.literal(String.valueOf(c)).setStyle(currentStyle));
+                    combinedText.append(Component.literal(String.valueOf(c)).withStyle(currentStyle));
                     i++;
                     continue;
                 }
-                Formatting formatting = Formatting.byCode(code);
+                ChatFormatting formatting = ChatFormatting.getByCode(code);
                 if (formatting != null) {
-                    if (formatting.isColor() || formatting == Formatting.RESET) {
-                        currentStyle = Style.EMPTY.withFormatting(formatting);
+                    if (formatting.isColor() || formatting == ChatFormatting.RESET) {
+                        currentStyle = Style.EMPTY.applyFormat(formatting);
                     } else {
-                        currentStyle = currentStyle.withFormatting(formatting);
+                        currentStyle = currentStyle.applyFormat(formatting);
                     }
-                    combinedText.append(Text.literal("&" + code).setStyle(currentStyle));
+                    combinedText.append(Component.literal("&" + code).withStyle(currentStyle));
                     i += 2;
                     continue;
                 }
             }
-            combinedText.append(Text.literal(String.valueOf(c)).setStyle(currentStyle));
+            combinedText.append(Component.literal(String.valueOf(c)).withStyle(currentStyle));
             i++;
         }
-        cir.setReturnValue(combinedText.asOrderedText());
+
+        cir.setReturnValue(combinedText.getVisualOrderText());
     }
 }

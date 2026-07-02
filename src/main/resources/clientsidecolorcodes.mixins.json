@@ -6,8 +6,8 @@
   "mixins": [
   ],
   "client": [
-    "client.AbstractSignBlockEntityRendererMixin",
     "client.AbstractSignEditScreenMixin",
+    "client.AbstractSignRendererMixin",
     "client.ChatHudMixin",
     "client.EntityRendererMixin",
     "client.InGameHudMixin",
