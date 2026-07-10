@@ -3,8 +3,11 @@ package org.client;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
+import net.minecraft.client.input.KeyInput;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
+
+import java.awt.event.KeyEvent;
 
 public class ColorMenuScreen extends Screen {
     private static final ColorCode[] COLOR_CODES = {
@@ -45,7 +48,6 @@ public class ColorMenuScreen extends Screen {
 
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float deltaTicks) {
-//        this.renderBackground(context, mouseX, mouseY, deltaTicks);
 
         int panelWidth = 220;
         int panelHeight = 170;
@@ -53,18 +55,21 @@ public class ColorMenuScreen extends Screen {
         int panelY = (this.height - panelHeight) / 2 + 56;
 
         context.fill(panelX, panelY -76, panelX + panelWidth, panelY + panelHeight-44, 0x4FFFFFFF);
-//        context.fill(panelX, panelY, panelX + panelWidth, panelY + 1, 0xFF475E82);
-//        context.fill(panelX, panelY + panelHeight - 1, panelX + panelWidth, panelY + panelHeight, 0xFF475E82);
-//        context.drawCenteredTextWithShadow(this.textRenderer, this.title, this.width / 2, panelY + 12, 0xFFFFFFFF);
-
-//        drawSectionDivider(context, panelX + 14, panelY -82, panelWidth - 28);
         drawCodes(context, panelX + 10, panelY - 70);
-
-//        drawSectionDivider(context, panelX + 14, panelY + 76, panelWidth - 28);
-//        drawCodes(context, FORMAT_CODES, panelX + 28, panelY + 88, 2, 3, 112, 18);
-
         super.render(context, mouseX, mouseY, deltaTicks);
     }
+
+    @Override
+    public boolean keyPressed(KeyInput keyInput) {
+        if (this.client != null && this.client.options.inventoryKey.matchesKey(keyInput)) {
+            this.close();
+            return true;
+        }
+        return super.keyPressed(keyInput);
+    }
+
+    @Override
+    public boolean shouldPause(){return false;}
 
     private void drawCodes(DrawContext context, int startX, int startY) {
         for (int index = 0; index < ColorMenuScreen.COLOR_CODES.length; index++) {
@@ -77,11 +82,6 @@ public class ColorMenuScreen extends Screen {
             context.drawTextWithShadow(this.textRenderer, code.text(), x, y, 0xFFFFFFFF);
         }
     }
-
-//    private void drawSectionDivider(DrawContext context, int x, int y, int width) {
-//        context.fill(x, y, x + width, y + 1, 0xFFAA2222);
-//        context.fill(x, y + 3, x + width, y + 4, 0xFFAA2222);
-//    }
 
     private record ColorCode(String code, Formatting formatting, String color) {
         private Text text() {
