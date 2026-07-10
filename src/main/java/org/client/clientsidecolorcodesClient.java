@@ -5,6 +5,8 @@ import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.item.v1.ItemTooltipCallback;
+import net.minecraft.text.MutableText;
+import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 
 import java.util.regex.Matcher;
@@ -22,17 +24,25 @@ public class clientsidecolorcodesClient implements ClientModInitializer {
                         return 1;
                     }));
         });
-            ItemTooltipCallback.EVENT.register((stack, context, type, lines) -> {
-                if (lines.isEmpty()) return;
-                String rawName = lines.getFirst().getString();
-                if (rawName.contains("&")) {
-                    Matcher matcher = COLOR_CODE_PATTERN.matcher(rawName);
-                    if (matcher.find()) {
-                        rawName = Text.literal(matcher.replaceAll("§$1")).getString();
+        ItemTooltipCallback.EVENT.register((stack, context, type, lines) -> {
+            if (lines.isEmpty()) return;
+            Text firstNameLine = lines.getFirst();
+            Style styleOriginal = firstNameLine.getStyle();
+            if (firstNameLine.getString().contains("&")) {
+                Text cleanedName = firstNameLine.copy().fillStyle(styleOriginal);
+                MutableText newName = Text.empty();
+                firstNameLine.visit((style, literalPart) -> {
+                    if (literalPart.contains("&")) {
+                        String coloredPart = literalPart.replaceAll("&(?=[0-9a-fk-orA-F-K-O-R])", "§");
+                        newName.append(Text.literal(coloredPart).setStyle(style));
+                    } else {
+                        newName.append(Text.literal(literalPart).setStyle(style));
                     }
-                    lines.set(0, Text.literal(rawName));
-                }
-            });
+                    return java.util.Optional.empty();
+                }, Style.EMPTY);
+                lines.set(0, newName);
+            }
+        });
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             if (pendingMenuOpenTicks > 0) {
                 pendingMenuOpenTicks--;
@@ -43,10 +53,11 @@ public class clientsidecolorcodesClient implements ClientModInitializer {
         });
         }
     public static Text convertColorCodes(Text original) {
+        Style style = original.getStyle();
         String raw = original.getString();
         Matcher matcher = COLOR_CODE_PATTERN.matcher(raw);
         if (matcher.find()) {
-            return Text.literal(matcher.replaceAll("§$1"));
+            return Text.literal(matcher.replaceAll("§$1")).setStyle(style);
         }
         return original;
     }
