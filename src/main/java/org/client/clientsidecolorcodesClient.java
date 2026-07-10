@@ -57,7 +57,7 @@ public class clientsidecolorcodesClient implements ClientModInitializer {
         String raw = original.getString();
         Matcher matcher = COLOR_CODE_PATTERN.matcher(raw);
         if (matcher.find()) {
-            return Component.literal(matcher.replaceAll("§$1"));//.setStyle(style);
+            return Component.literal(matcher.replaceAll("§$1")).setStyle(style);
         }
         return original;
     }
