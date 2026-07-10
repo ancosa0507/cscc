@@ -41,8 +41,9 @@ public class AbstractSignEditScreenMixin {
     private void redirectDrawString(GuiGraphics guiGraphics, Font font, String text, int x, int y, int color, boolean shadow) {
         if (text != null && text.contains("&")) {
             guiGraphics.drawString(font, colorizeCodeString(text), x, y, color, shadow);
+        } else {
+            guiGraphics.drawString(font, text, x, y, color, shadow);
         }
-        guiGraphics.drawString(font, text, x, y, color, shadow);
     }
 
     @Unique
