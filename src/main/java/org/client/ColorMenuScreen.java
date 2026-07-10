@@ -70,6 +70,15 @@ public class ColorMenuScreen extends Screen {
     @Override
     public boolean shouldPause(){return false;}
 
+    @Override
+    public void renderBackground(DrawContext context, int mouseX, int mouseY, float delta) {
+        if (this.client.world != null) {
+        } else {
+            this.renderPanoramaBackground(context, delta);
+            this.renderDarkening(context);
+        }
+    }
+
     private void drawCodes(DrawContext context, int startX, int startY) {
         for (int index = 0; index < ColorMenuScreen.COLOR_CODES.length; index++) {
             int column = index / 11;
