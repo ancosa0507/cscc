@@ -4,7 +4,7 @@
 
 Make fancy texts by using color codes in front of the text, e.g. `&a&lHello` — the "Hello" will be fat and in green. (standard format used on most servers with colored text support)
 
-> ⚠️ **Important Note:** Players who don't have the mod installed will **NOT** see the formatted text, they will see `&a&lHello` in the standard format.
+> ⚠️ **Important Note:** Players who don't have the mod installed will **NOT** see the formatted text, they will see `&a&lHello` in the normal formatting.
 
 ---
 
@@ -15,6 +15,8 @@ Because many servers lock colored texts behind a paywall and I want aesthetic to
 
 ### 📝 Supported Features
 **Live Preview:** Instantly see how your formatted text will look like while typing.
+
+**Color Code List:** Use the command /cscc to get a list of all working color codes.
 
 **Colorable texts include:**
 * Chat messages
