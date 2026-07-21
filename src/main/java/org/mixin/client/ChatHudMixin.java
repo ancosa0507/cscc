@@ -39,7 +39,7 @@ public class ChatHudMixin {
                 String converted = COLOR_CODE_PATTERN.matcher(raw).replaceAll("§$1");
                 result = parseLegacyString(converted, style);
             } else {
-                result = text.copy().setStyle(style);
+                result = MutableComponent.create(text.getContents()).setStyle(style);
             }
         } else if (text.getContents() instanceof TranslatableContents translatable) {
             Object[] args = translatable.getArgs();
@@ -57,10 +57,10 @@ public class ChatHudMixin {
                     translatable.getFallback(),
                     newArgs
             )).setStyle(style);
-        } else {
-            result = text.copy().setStyle(style);
-        }
 
+        } else {
+            result = MutableComponent.create(text.getContents()).setStyle(style);
+        }
         for (Component sibling : text.getSiblings()) {
             result.append(processText(sibling));
         }
