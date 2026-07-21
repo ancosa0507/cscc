@@ -39,31 +39,31 @@ public class ChatHudMixin {
                 String converted = COLOR_CODE_PATTERN.matcher(raw).replaceAll("§$1");
                 result = parseLegacyString(converted, style);
             } else {
-                result = text.copy().setStyle(style);
+                result = MutableComponent.create(text.getContents()).setStyle(style);
             }
         } else if (text.getContents() instanceof TranslatableContents translatable) {
-            Object[] args = translatable.getArgs();
-            Object[] newArgs = new Object[args.length];
+        Object[] args = translatable.getArgs();
+        Object[] newArgs = new Object[args.length];
 
-            for (int i = 0; i < args.length; i++) {
-                if (args[i] instanceof Component argText) {
-                    newArgs[i] = processText(argText);
-                } else {
-                    newArgs[i] = args[i];
-                }
+        for (int i = 0; i < args.length; i++) {
+            if (args[i] instanceof Component argText) {
+                newArgs[i] = processText(argText);
+            } else {
+                newArgs[i] = args[i];
             }
-            result = MutableComponent.create(new TranslatableContents(
-                    translatable.getKey(),
-                    translatable.getFallback(),
-                    newArgs
-            )).setStyle(style);
-        } else {
-            result = text.copy().setStyle(style);
         }
+        result = MutableComponent.create(new TranslatableContents(
+                translatable.getKey(),
+                translatable.getFallback(),
+                newArgs
+        )).setStyle(style);
 
-        for (Component sibling : text.getSiblings()) {
-            result.append(processText(sibling));
-        }
+    } else {
+        result = MutableComponent.create(text.getContents()).setStyle(style);
+    }
+for (Component sibling : text.getSiblings()) {
+        result.append(processText(sibling));
+    }
         return result;
     }
 
